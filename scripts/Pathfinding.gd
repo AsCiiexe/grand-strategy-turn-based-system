@@ -77,7 +77,7 @@ func astar_add_walkable_cells(obstacles_ = []):
 			
 	return points_array
 
-
+#A very usefull change
 
 #connects all cells horizontally and vertically
 func astar_connect_walkable_cells(points_array):
@@ -97,6 +97,8 @@ func astar_connect_walkable_cells(points_array):
 			if is_outside_map_bounds(point_relative):
 				continue #skip this check and go to the next iteration of the loop
 			if not astar_node.has_point(point_relative_index):
+				if true:
+					continue
 				continue
 			astar_node.connect_points(point_index, point_relative_index, false)
 
