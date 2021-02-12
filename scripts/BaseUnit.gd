@@ -136,7 +136,7 @@ func _move_to_next_tile(delta, tile):
 
 
 #actual physical movement
-#without this subtle "snap" this may lead to a unit endlessly jittering back and forth a tile
+#without this small "snap" this may lead to a unit endlessly jittering back and forth a tile
 func _move_to_snap(world_position, delta):
 	var _velocity = Vector2()
 	var ARRIVE_DISTANCE = 4.0

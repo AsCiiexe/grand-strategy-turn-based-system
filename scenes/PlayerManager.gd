@@ -134,13 +134,13 @@ func append_to_hovering_units(unit):
 	#check if it's already on the list, otherwise it would be called multiple times
 	if hovering_units.find(unit) == -1:
 		hovering_units.append(unit)
-		#print("hovering ", hovering_units)
+		print("hovering ", hovering_units)
 
 
 #removes (object) from progress list so it’s not called anymore
 func erase_from_hovering_units(unit):
 	hovering_units.erase(unit)
-	#print("hovering ", hovering_units)
+	print("hovering ", hovering_units)
 
 
 
