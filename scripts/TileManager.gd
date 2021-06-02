@@ -5,18 +5,22 @@ extends TileMap
 #in order to get accurate paths this is reversed movementProgressMod
 #the calculation is simple: 10 - movementProgressMod
 #eg 10 - 0.75 = 9.25 pathfindingWeight
+#this is probably a shabby way of doing it but it works
 
-onready var pathfindingMap = get_parent().get_node("PathfindingMap")
+onready var pathfindingMap = get_tree().get_root().get_node("Main/PathfindingMap")
 
 var occupied_tiles = {} #all the tiles with a unit in them
 var tile_contents = [] #used in occupied_tiles management
+var buildings = {} #all the tiles with a building in them
+
 var plains_properties = {
 		"tileName": "plains", #tile name
 		"movementProgressMod": 1, #modifier multiplier [x1]
-		"pathfindingWeight": 9, #higher up there's an explanation of how this works
+		"pathfindingWeight": 9, #the lower, the less it will take to move here
 		"baseVigorCost": 1, #raw number [+1]
 		"vigorRecoveryMod": 1, #modifier multiplier [x1]
-		"naturalTerrainSupply": 100 #raw number [+1]
+		"naturalTerrainSupply": 100, #raw number [+1]
+		"attackerMod": 1 #modifier multiplier [x1]
 }
 
 var hills_properties = {
@@ -25,7 +29,8 @@ var hills_properties = {
 		"pathfindingWeight": 9.10,
 		"baseVigorCost": 2.5,
 		"vigorRecoveryMod": 0.95,
-		"naturalTerrainSupply": 100
+		"naturalTerrainSupply": 100,
+		"attackerMod": 0.90
 }
 
 var forest_properties = {
@@ -34,7 +39,8 @@ var forest_properties = {
 		"pathfindingWeight": 9.20,
 		"baseVigorCost": 2.5,
 		"vigorRecoveryMod": 1,
-		"naturalTerrainSupply": 150
+		"naturalTerrainSupply": 150,
+		"attackerMod": 0.90
 }
 
 var farmlands_properties = {
@@ -43,7 +49,8 @@ var farmlands_properties = {
 		"pathfindingWeight": 9,
 		"baseVigorCost": 0.85,
 		"vigorRecoveryMod": 1.15,
-		"naturalTerrainSupply": 200
+		"naturalTerrainSupply": 200,
+		"attackerMod": 1
 }
 
 var mountain_properties = {
@@ -52,7 +59,8 @@ var mountain_properties = {
 		"pathfindingWeight": 9.40,
 		"baseVigorCost": 4.5,
 		"vigorRecoveryMod": 0.90,
-		"naturalTerrainSupply": 85
+		"naturalTerrainSupply": 85,
+		"attackerMod": 0.80
 }
 
 var marsh_properties = {
@@ -61,7 +69,8 @@ var marsh_properties = {
 		"pathfindingWeight": 9.20,
 		"baseVigorCost": 3.5,
 		"vigorRecoveryMod": 0.85,
-		"naturalTerrainSupply": 75
+		"naturalTerrainSupply": 75,
+		"attackerMod": 0.90
 }
 
 var desert_properties = {
@@ -70,7 +79,8 @@ var desert_properties = {
 		"pathfindingWeight": 9.35,
 		"baseVigorCost": 5,
 		"vigorRecoveryMod": 0.75,
-		"naturalTerrainSupply": 50
+		"naturalTerrainSupply": 50,
+		"attackerMod": 1
 }
 
 var obstacle_properties = {
@@ -79,7 +89,8 @@ var obstacle_properties = {
 		"pathfindingWeight": 100,
 		"baseVigorCost": 0,
 		"vigorRecoveryMod": 0,
-		"naturalTerrainSupply": 0
+		"naturalTerrainSupply": 0,
+		"attackerMod": 1
 }
 
 
@@ -89,10 +100,8 @@ func get_tile_id(tile_position):
 	return get_cell(cell_grid_pos.x, cell_grid_pos.y)
 
 
-
 #cell_pos has to be in XY coords
 func get_tile_properties(cell_pos):
-	
 	var cell_map_pos = world_to_map(Vector2(cell_pos.x, cell_pos.y))
 	var tile_index = get_cell(cell_map_pos.x, cell_map_pos.y)
 	match tile_index:
@@ -116,10 +125,24 @@ func get_tile_properties(cell_pos):
 			print("NO TILE IN ", cell_pos)
 			return null
 
+func get_tile_units(pos):
+	return occupied_tiles.get(pos)
+
+#this asks for a tile's xy coords and returns that tile's movement cost
+func get_tile_movement_cost(tile_coords):
+	var tproperties = get_tile_properties(tile_coords)
+	return tproperties.get("movementProgressMod")
+
+func get_tile_attacker_mod(tile_coords):
+	var tproperties = get_tile_properties(tile_coords)
+	return tproperties.get("attackerMod")
+
+
 
 #NOTE: THIS STUFF IS NOT FOOLPROOF, IT CAN EASILY HAVE MANY HOLES POKED
 func set_unit_position(pos, id):
-	#occupied_tiles is a dictionary, tile_contents is an array. more than one unit can be in the same tile
+	#occupied_tiles is a dictionary with all occupied tiles and their contents
+	#tile_contents is an array with all units in a specific tile
 	tile_contents = occupied_tiles.get(pos)
 	if tile_contents == null:
 		tile_contents = []
@@ -127,7 +150,7 @@ func set_unit_position(pos, id):
 	if tile_contents.find(id) == -1:
 		tile_contents.append(id)
 	else:
-		print("UNIT ALREADY HERE")
+		print("UNIT IS ALREADY HERE")
 	
 	occupied_tiles[pos] = tile_contents
 
@@ -139,18 +162,6 @@ func delete_unit_position(pos, id):
 		occupied_tiles[pos] = tile_contents
 	else:
 		occupied_tiles.erase(pos)
-
-
-func get_tile_contents(pos):
-	return occupied_tiles.get(pos)
-
-
-
-#this asks for a tile's xy coords and returns that tile's movement cost
-func get_tile_movement_cost(tile_coords):
-	var tproperties = get_tile_properties(tile_coords)
-	return tproperties.get("movementProgressMod")
-
 
 
 #NOTE: this is for the pathfinding node only as it asks for a tile index and not xy coords

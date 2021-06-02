@@ -2,14 +2,14 @@ extends TileMap
 #WARNING: Astar returns PoolVector3s, if you need Vector2s you'll have to convert
 #example: Vector2(PoolVector3[0].x, PoolVector3[0].y)
 onready var astar_node = AStar.new()
-onready var tileManager = get_parent().get_node("Terrain")
+onready var tileManager = get_tree().get_root().get_node("Main/Terrain")
 export var map_size = Vector2(34, 20)
 #setter methods (setget) will run the func specified whenever the var is changed 
 #(the func runs before the change) setget can actually cancel any changes made to a variable
 var path_start_position = Vector2() setget _set_path_start_position
 var path_end_position = Vector2() setget _set_path_end_position
-var moving_units = []
-var PFselected_units = []
+var moving_units = [] #units that will draw their path when selected
+var PFselected_units = [] #units that will have paths drawn
 #this will contain the path that the object has to follow in order to reach its destination
 var point_path = []
 
@@ -33,7 +33,7 @@ func _ready():
 func _draw():
 	for unit in PFselected_units:
 		if moving_units.find(unit) != -1:
-			draw_path(unit.current_node_position, unit.unit_path)
+			draw_path(unit.current_tile_position, unit.unit_path)
 
 
 
