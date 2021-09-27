@@ -4,9 +4,11 @@
 [ext_resource path="res://scripts/BaseBuilding.gd" type="Script" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 28, 28 )
+extents = Vector2( 30.625, 31.1182 )
 
-[node name="Building" type="Position2D"]
+[node name="Building" type="Position2D" groups=[
+"building",
+]]
 position = Vector2( 32, 32 )
 script = ExtResource( 2 )
 

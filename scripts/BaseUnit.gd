@@ -44,7 +44,6 @@ func _ready():
 		modulate = Color.red
 
 
-
 func _physics_process(delta):
 	if movement_queue:
 		_move_to_next_tile(delta, movement_queue[0])

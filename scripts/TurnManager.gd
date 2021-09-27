@@ -1,6 +1,7 @@
 extends Node2D
 
 onready var pathfindingMap = get_tree().get_root().get_node("Main/PathfindingMap")
+onready var HUD = get_tree().get_root().get_node("Main/CanvasLayer")
 onready var timer = get_node("Timer")
 var turn = 0
 var turn_speed = 2 setget set_turn_speed #change this on _ready if you want a different default turn_speed
@@ -23,12 +24,15 @@ func _ready():
 
 func _unhandled_input(event):
 	if event.is_action_pressed("pause"):#toggle pause (space)
+		
 		if timer.is_paused():
 			print("continue")
 			timer.set_paused(false)
+			HUD.set_time_sprite("play")
 		else:
 			print("pause")
 			timer.set_paused(true)
+			HUD.set_time_sprite("pause")
 	
 	if event.is_action_pressed("speed_up"):#raise turn speed (F2)
 		self.turn_speed += 1
